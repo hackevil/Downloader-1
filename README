@@ -1,0 +1,15 @@
+Download NodeJS 4 or Greater
+  - Download tgz file
+  - Extract
+  - Copy to /opt/node
+  - Add /opt/node/bin/node to /etc/environment
+  - source /etc/environment to apply the change
+
+Clone the project to the required location
+
+cd to the directory
+
+run node server.js
+
+Access on port :8080
+

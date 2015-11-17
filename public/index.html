@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Downloaders</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="row">
+        <div class="col-xs-1">
+            &nbsp;
+        </div>
+        <div class="col-xs-10">
+            <h2>Downloader<small>Just for B-dog</small></h2>
+            <form enctype="application/x-www-form-urlencoded" action="/api/v1/downloads" method="post">
+                <div class="form-group">
+                    <label for="inputFile">Add URL for download</label>
+                    <input type="inputFile" class="form-control" name="inputFile" placeholder="URL">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Download</button>
+                </div>
+            </form>
+            <div class="form-group">
+                <button type="button" class="btn btn-success" id="downloads" onclick="downloads()">Refresh</button>
+                <button type="button" class="btn btn-danger" id="clear" onclick="clear()">Clear</button>
+            </div>
+            <table id="files" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>File URL</td>
+                        <td>Progress (%)</td>
+                        <td>Downloaded (MB)</td>
+                        <td>Total Size (MB)</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-1">
+            &nbsp;
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+var request = function(reqType, onSuccess) {
+    var request = new XMLHttpRequest();
+    // Create the callback:
+    request.onreadystatechange = function() {
+        if (request.readyState == 4 && request.status == 200) {
+            onSuccess(request);
+        }
+    }
+    request.open(reqType, "http://localhost:8080/api/v1/downloads", true);
+    request.send();
+};
+
+function remove(event) {
+    request("DELETE", function(request) {
+        console.log("Remove specific.");
+    });
+};
+
+function clear() {
+    request("DELETE", function(request) {
+        console.log("Clear remove specific.");
+    });
+};
+
+function downloads() {
+    request("GET", function(request) {
+        var results = JSON.parse(request.responseText);
+        processDownloads(results);
+    });
+};
+
+function processDownloads(results) {
+    function formatNumber(number) {
+        return (+number / 1024 / 1024).toFixed(2);
+    }
+    var tableRef = document.getElementById('files').getElementsByTagName('tbody')[0];
+    var html = '';
+    for (var i = 0; i < results.length; i++) {
+        html += '<tr>' +
+            '<td>' + results[i].filename + '</td>' +
+            '<td>' + results[i].percent + '</td>' +
+            '<td>' + formatNumber(results[i].received) + '</td>' +
+            '<td>' + formatNumber(results[i].total) + '</td>' +
+            '<td><button type="button" class="btn btn-danger">Remove</button></td>'
+        '</tr>';
+    }
+    tableRef.innerHTML = html;
+    document.getElementsByClassName("btn-danger").onclick = remove;
+};
+
+(function() {
+    setInterval(downloads, 1000);
+    document.getElementById('downloads').onclick = downloads;
+    document.getElementById('clear').onclick = clear;
+})();
+</script>
+
+</html>
