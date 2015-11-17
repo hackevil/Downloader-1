@@ -30,11 +30,7 @@ app.post(END_POINT, function(req, res) {
 });
 
 app.get(END_POINT, function(req, res) {
-  let files = [];
-  for (var value of downloader.files) {
-    files.push(value);
-  }
-  res.json(files);
+  res.json(downloader.files);
 });
 
 app.delete(END_POINT, function(req, res) {

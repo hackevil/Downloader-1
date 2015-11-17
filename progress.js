@@ -3,27 +3,20 @@
 var fs = require('fs'),
   request = require('request'),
   progress = require('request-progress'),
-  downloadDir = "downloads/";
+  downloadDir = "downloads/",
+  Nedb = require('nedb'),
+  files = new Nedb({
+    filename: 'db/data.db',
+    autoload: true
+  });
 
 if (!fs.existsSync(downloadDir)) {
   fs.mkdirSync(downloadDir);
 }
 
-class DownloadFile {
-  constructor(filename, total) {
-    this.filename = filename;
-    this.url = downloadDir + filename;
-    this.total = total;
-    this.received = 0;
-    this.percent = 0;
-    this.done = false;
-  }
-}
-
 class Downloader {
-
   constructor() {
-    this.fileDb = new Map();
+    this.fileList = new Array();
   }
 
   download(url) {
@@ -36,38 +29,80 @@ class Downloader {
         delay: 1000 // Only start to emit after 1000ms delay, defaults to 0ms 
       })
       .on('progress', function(state) {
-        // The properties {precent, total} can be null if response does not contain the content-length header 
-        var download = db.get(filename);
-        if (download == undefined) {
-          download = new DownloadFile(filename, state.total);
-          db.set(filename, download);
-        }
-        download.received = state.received;
-        download.percent = state.percent;
+
+        files.update({
+          filename: filename
+        }, {
+          filename: filename,
+          url: downloadDir + filename,
+          received: state.received,
+          // The properties {precent, total} can be null if response does not contain the content-length header 
+          total: state.total,
+          percent: state.percent,
+          done: false
+        }, {
+          upsert: true
+        }, function(err, numReplaced, upsert) {
+          if (err) {
+            console.log("Failed upsert during progress:", err);
+          }
+        });
+
       })
       .on('error', function(err) {
-        console.log(err);
+        console.log("Error: " + err);
       })
       .pipe(fs.createWriteStream(downloadDir + filename))
       .on('error', function(err) {
-        console.log(err);
+        console.log("Error: " + err);
       })
       .on('close', function(err) {
-        // A small file wont even see 'progress'
-        var download = db.get(filename);
-        if (download == undefined) {
-          download = new DownloadFile(filename, 100);
-          db.set(filename, download);
-        }
-        download.received = download.total;
-        download.percent = 100;
-        download.done = true;
-        console.log("Finished: " + filename)
+
+        files.find({
+          filename: filename
+        }, function(err, docs) {
+          // A small file wont even see 'progress'
+          if (err) {
+            console.log("Error: " + err);
+          }
+          var total;
+          if (docs.length == 0) {
+            total = 1024;
+          } else {
+            total = docs[0].total;
+          }
+          files.update({
+            filename: filename
+          }, {
+            filename: filename,
+            url: downloadDir + filename,
+            received: total,
+            done: true
+          }, {
+            upsert: true
+          }, function(err, numReplaced, upsert) {
+            if (err) {
+              console.log("Failed upsert during completion: " + err);
+            }
+          });
+          console.log("Finished: " + filename)
+        });
       })
   }
 
   get files() {
-    return this.fileDb.values();
+    let _self = this;
+    // Now we can query it the usual way
+    files.find({}, function(err, docs) {
+      if (err) {
+        console.log("Error: " + err);
+      }
+      _self.fileList.splice(0, _self.fileList.length);
+      for (var value of docs) {
+        _self.fileList.push(value);
+      }
+    });
+    return this.fileList;
   }
 }
 

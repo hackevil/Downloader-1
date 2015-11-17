@@ -35,7 +35,6 @@
                 </div>
             </form>
             <div class="form-group">
-                <button type="button" class="btn btn-success" id="downloads" onclick="downloads()">Refresh</button>
                 <button type="button" class="btn btn-danger" id="clear" onclick="clear()">Clear</button>
             </div>
             <table id="files" class="table table-bordered">
@@ -113,8 +112,7 @@ function processDownloads(results) {
 };
 
 (function() {
-    setInterval(downloads, 1000);
-    document.getElementById('downloads').onclick = downloads;
+    setInterval(downloads, 5000);
     document.getElementById('clear').onclick = clear;
 })();
 </script>
