@@ -53,23 +53,24 @@ app.delete(END_POINT + '/:id', function(req, res) {
  | HTML Endpoints |
  ******************/
 
-var options = {
-  root: __dirname + '/public/',
-  dotfiles: 'deny',
-  headers: {
-    'x-timestamp': Date.now(),
-    'x-sent': true
-  }
-};
-
 app.get('/', function(req, res) {
-  res.sendFile('index.html', options, function(error) {
-    if (error) {
-      console.log(error);
-      res.status(error.status).end();
-    }
-  });
+  res.sendFile('index.html', {
+      root: __dirname + '/public/',
+      dotfiles: 'deny',
+      headers: {
+        'x-timestamp': Date.now(),
+        'x-sent': true
+      }
+    },
+    function(error) {
+      if (error) {
+        console.log(error);
+        res.status(error.status).end();
+      }
+    });
 });
+
+app.use('/downloads', express.static(__dirname + '/downloads'));
 
 var port = process.env.PORT || 8080;
 

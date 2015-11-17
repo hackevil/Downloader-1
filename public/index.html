@@ -5,6 +5,17 @@
     <title>Downloaders</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" crossorigin="anonymous">
+    <style type="text/css">
+    body {
+        font-size: 12px;
+    }
+    
+    table,
+    tr,
+    td {
+        vertical-align: middle;
+    }
+    </style>
 </head>
 
 <body>
@@ -90,7 +101,11 @@ function processDownloads(results) {
             '<td>' + results[i].percent + '</td>' +
             '<td>' + formatNumber(results[i].received) + '</td>' +
             '<td>' + formatNumber(results[i].total) + '</td>' +
-            '<td><button type="button" class="btn btn-danger">Remove</button></td>'
+            '<td>' +
+            '<button type="button" class="btn btn-danger btn-xs">' +
+            '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
+            '</button> ' + (results[i].done ? '<a href="' + results[i].url + '" class="btn btn-primary btn-xs" role="button">Download</a>' : '') +
+            '</td>'
         '</tr>';
     }
     tableRef.innerHTML = html;

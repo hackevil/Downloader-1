@@ -3,7 +3,7 @@
 var fs = require('fs'),
   request = require('request'),
   progress = require('request-progress'),
-  downloadDir = "./downloads";
+  downloadDir = "downloads/";
 
 if (!fs.existsSync(downloadDir)) {
   fs.mkdirSync(downloadDir);
@@ -12,9 +12,11 @@ if (!fs.existsSync(downloadDir)) {
 class DownloadFile {
   constructor(filename, total) {
     this.filename = filename;
+    this.url = downloadDir + filename;
     this.total = total;
     this.received = 0;
     this.percent = 0;
+    this.done = false;
   }
 }
 
@@ -37,7 +39,7 @@ class Downloader {
         // The properties {precent, total} can be null if response does not contain the content-length header 
         var download = db.get(filename);
         if (download == undefined) {
-          download = new DownloadFile(url, state.total);
+          download = new DownloadFile(filename, state.total);
           db.set(filename, download);
         }
         download.received = state.received;
@@ -46,12 +48,21 @@ class Downloader {
       .on('error', function(err) {
         console.log(err);
       })
-      .pipe(fs.createWriteStream(downloadDir + "/" + filename))
+      .pipe(fs.createWriteStream(downloadDir + filename))
       .on('error', function(err) {
         console.log(err);
       })
       .on('close', function(err) {
-        console.log(err);
+        // A small file wont even see 'progress'
+        var download = db.get(filename);
+        if (download == undefined) {
+          download = new DownloadFile(filename, 100);
+          db.set(filename, download);
+        }
+        download.received = download.total;
+        download.percent = 100;
+        download.done = true;
+        console.log("Finished: " + filename)
       })
   }
 
