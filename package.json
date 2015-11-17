@@ -9,6 +9,9 @@
   "author": "Leo Ackerman",
   "license": "ISC",
   "dependencies": {
-    "request": "^2.65.0"
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
+    "request": "^2.65.0",
+    "request-progress": "^0.3.1"
   }
 }
