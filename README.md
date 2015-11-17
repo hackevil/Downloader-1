@@ -20,5 +20,6 @@
   - Clone the project to a desired location `git clone https://github.com/project-bibliotheca/downloader.git`
     - Make sure that the user you use to run the app has write access to the folder (For now ;) )
   - `cd` to the location
+  - run `npm install`
   - run by executing `node server.js`
   - Access on port :8080 `http://<server>:8080`
