@@ -65,7 +65,7 @@ var request = function(reqType, onSuccess) {
             onSuccess(request);
         }
     }
-    request.open(reqType, "http://localhost:8080/api/v1/downloads", true);
+    request.open(reqType, "/api/v1/downloads", true);
     request.send();
 };
 
