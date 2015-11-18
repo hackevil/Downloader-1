@@ -21,7 +21,7 @@ class Downloader {
 
   download(url) {
     var filename = url.substring(url.lastIndexOf('/') + 1);
-    console.log("Downloading", filename);
+    console.log("[Downloading", filename, "]");
     let db = this.fileDb;
     // Note that the options argument is optional 
     progress(request(url), {
@@ -29,7 +29,6 @@ class Downloader {
         delay: 1000 // Only start to emit after 1000ms delay, defaults to 0ms 
       })
       .on('progress', function(state) {
-
         files.update({
           filename: filename
         }, {
@@ -47,23 +46,21 @@ class Downloader {
             console.log("Failed upsert during progress:", err);
           }
         });
-
       })
       .on('error', function(err) {
-        console.log("Error: " + err);
+        console.log("[Error on download]\n", err);
       })
       .pipe(fs.createWriteStream(downloadDir + filename))
       .on('error', function(err) {
-        console.log("Error: " + err);
+        console.log("[Error on pipe]\n", err);
       })
       .on('close', function(err) {
-
         files.find({
           filename: filename
         }, function(err, docs) {
           // A small file wont even see 'progress'
           if (err) {
-            console.log("Error: " + err);
+            console.log("[Error on Close: Failed to find", filename, "]\n", err);
           }
           var total;
           if (docs.length == 0) {
@@ -82,10 +79,10 @@ class Downloader {
             upsert: true
           }, function(err, numReplaced, upsert) {
             if (err) {
-              console.log("Failed upsert during completion: " + err);
+              console.log("[Error: Failed upsert during close]\n", err);
             }
           });
-          console.log("Finished: " + filename)
+          console.log("[Finished:", filename, "]");
         });
       })
   }
@@ -95,7 +92,7 @@ class Downloader {
     // Now we can query it the usual way
     files.find({}, function(err, docs) {
       if (err) {
-        console.log("Error: " + err);
+        console.log("[Error retrieving file list]\n", err);
       }
       _self.fileList.splice(0, _self.fileList.length);
       for (var value of docs) {
