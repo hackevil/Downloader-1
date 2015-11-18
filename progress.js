@@ -17,12 +17,14 @@ if (!fs.existsSync(downloadDir)) {
 class Downloader {
   constructor() {
     this.fileList = new Array();
+    this.count = 0;
   }
 
   download(url) {
     var filename = url.substring(url.lastIndexOf('/') + 1);
     console.log("[Downloading", filename, "]");
     let db = this.fileDb;
+    let _self = this;
     // Note that the options argument is optional 
     progress(request(url), {
         throttle: 2000, // Throttle the progress event to 2000ms, defaults to 1000ms 
@@ -49,6 +51,13 @@ class Downloader {
       })
       .on('error', function(err) {
         console.log("[Error on download]\n", err);
+        if (_self.count < 3) {
+          console.log("Retrying");
+          _self.download(url);
+          _self.count++;
+        } else {
+          console.log("[Failed to download after 3 attempts]");
+        }
       })
       .pipe(fs.createWriteStream(downloadDir + filename))
       .on('error', function(err) {
@@ -62,18 +71,21 @@ class Downloader {
           if (err) {
             console.log("[Error on Close: Failed to find", filename, "]\n", err);
           }
-          var total;
-          if (docs.length == 0) {
-            total = 1024;
-          } else {
+          var total = 10240,
+            percent = 100;
+          if (docs && docs.length > 0) {
             total = docs[0].total;
+            percent = docs[0].percent;
           }
+          console.log(percent);
           files.update({
             filename: filename
           }, {
             filename: filename,
             url: downloadDir + filename,
             received: total,
+            total: total,
+            percent: percent,
             done: true
           }, {
             upsert: true

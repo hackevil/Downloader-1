@@ -31,7 +31,7 @@
                     <input type="inputFile" class="form-control" name="inputFile" placeholder="URL">
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Download</button>
+                    <button type="submit" id="download" class="btn btn-primary">Download</button>
                 </div>
             </form>
             <div class="form-group">
@@ -112,7 +112,7 @@ function processDownloads(results) {
 };
 
 (function() {
-    setInterval(downloads, 5000);
+    setInterval(downloads, 1000);
     document.getElementById('clear').onclick = clear;
 })();
 </script>
