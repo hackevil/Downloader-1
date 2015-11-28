@@ -97,6 +97,15 @@ class Downloader {
           console.log("[Finished:", filename, "]");
         });
       })
+
+    return {
+      filename: filename,
+      url: downloadDir + filename,
+      received: 0,
+      total: 0,
+      percent: 0,
+      done: false
+    };
   }
 
   get files() {

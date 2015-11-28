@@ -1,0 +1,9 @@
+body {
+    font-size: 12px;
+}
+
+table,
+tr,
+td {
+    vertical-align: middle;
+}

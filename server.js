@@ -19,14 +19,14 @@ app.use(bodyParser.json());
 const END_POINT = '/api/v1/downloads';
 
 app.post(END_POINT, function(req, res) {
-  var fileUrl = req.body.inputFile;
+  var fileUrl = req.body.url;
   console.log("Request to download:", fileUrl);
   if (fileUrl === undefined || fileUrl === "") {
     console.log("Failed. No file specified");
+    res.sendStatus(500);
   } else {
-    downloader.download(fileUrl);
+    res.send(downloader.download(fileUrl));
   }
-  res.redirect("/");
 });
 
 app.get(END_POINT, function(req, res) {
@@ -66,6 +66,8 @@ app.get('/', function(req, res) {
     });
 });
 
+app.use('/scripts', express.static(__dirname + '/public/scripts'));
+app.use('/styles', express.static(__dirname + '/public/styles'));
 app.use('/downloads', express.static(__dirname + '/downloads'));
 
 var port = process.env.PORT || 8080;
