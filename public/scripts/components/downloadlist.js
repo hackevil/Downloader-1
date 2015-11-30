@@ -40,10 +40,12 @@ lack.biblio.component.downloadList = new Vue({
       }, 1000);
     },
 
-    deleteFile: function() {
-      lack.biblio.utils.request("DELETE", "/api/v1/downloads/1", undefined, function(req) {
-        console.log("Remove specific.");
-      });
+    deleteFile: function(event) {
+      if (event.target.dataset.id) {
+        lack.biblio.utils.request("DELETE", "/api/v1/downloads/" + event.target.dataset.id, undefined, function(req) {
+          console.log("Remove specific.");
+        });
+      }
     },
 
     clear: function() {

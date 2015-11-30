@@ -16,32 +16,42 @@ app.use(bodyParser.json());
  | REST Endpoints |
  ******************/
 
-const END_POINT = '/api/v1/downloads';
+const endPoint = '/api/v1/downloads';
 
-app.post(END_POINT, function(req, res) {
+app.post(endPoint, function(req, res) {
   var fileUrl = req.body.url;
   console.log("Request to download:", fileUrl);
   if (fileUrl === undefined || fileUrl === "") {
     console.log("Failed. No file specified");
     res.sendStatus(500);
   } else {
-    res.send(downloader.download(fileUrl));
+    downloader.download(fileUrl);
   }
 });
 
-app.get(END_POINT, function(req, res) {
-  res.json(downloader.files);
+app.get(endPoint, function(req, res) {
+  downloader.updateDownloadList(function(docs) {
+    res.json(docs);
+  });
 });
 
-app.delete(END_POINT, function(req, res) {
+app.delete(endPoint, function(req, res) {
   console.log("Remove All");
+  downloader.removeAllCompleted(function() {
+    res.send("Removed All");
+  });
 });
 
-app.delete(END_POINT + '/:id', function(req, res) {
-  console.log("Remove: ", req.params.id);
-  if (req.params.id < 0) {
+app.delete(endPoint + '/:id', function(req, res) {
+  const docId = req.params.id;
+  console.log("Remove: ", docId);
+  if (docId < 0) {
     res.statusCode = 404;
     return res.send('Error 404: No quote found');
+  } else {
+    downloader.removeCompleted(docId, function() {
+      res.send("Removed: ", docId);
+    });
   }
 });
 
@@ -66,6 +76,7 @@ app.get('/', function(req, res) {
     });
 });
 
+app.use('/3rdparty', express.static(__dirname + '/public/3rdparty'));
 app.use('/scripts', express.static(__dirname + '/public/scripts'));
 app.use('/styles', express.static(__dirname + '/public/styles'));
 app.use('/downloads', express.static(__dirname + '/downloads'));

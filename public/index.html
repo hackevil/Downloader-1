@@ -3,10 +3,9 @@
 
 <head>
     <title>Downloaders</title>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="styles/main.css" crossorigin="anonymous">
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/vue/1.0.10/vue.min.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="3rdparty/styles/bootstrap.min.css">
+    <script type="text/javascript" src="3rdparty/scripts/vue.min.js"></script>
 </head>
 
 <body>
@@ -43,8 +42,7 @@
                         <td>{{ file.received | formatNumber }}</td>
                         <td>{{ file.total | formatNumber }}</td>
                         <td>
-                            <button id="{{ file._id }}" type="button" class="btn btn-danger btn-xs" v-on:click="deleteFile">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            <button data-id="{{ file._id }}" type="button" class="btn btn-danger btn-xs glyphicon glyphicon-remove" v-on:click="deleteFile">
                             </button>
                             <a v-if="file.done" href="{{ file.url }}" class="btn btn-primary btn-xs" role="button">Download</a>
                         </td>

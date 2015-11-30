@@ -1,6 +1,6 @@
 "use strict"
 
-var fs = require('fs'),
+const fs = require('fs'),
   request = require('request'),
   progress = require('request-progress'),
   downloadDir = "downloads/",
@@ -16,24 +16,20 @@ if (!fs.existsSync(downloadDir)) {
 
 class Downloader {
   constructor() {
-    this.fileList = new Array();
     this.count = 0;
   }
 
   download(url) {
-    var filename = url.substring(url.lastIndexOf('/') + 1);
+    const filename = url.substring(url.lastIndexOf('/') + 1);
     console.log("[Downloading", filename, "]");
-    let db = this.fileDb;
-    let _self = this;
+    const _self = this;
     // Note that the options argument is optional 
     progress(request(url), {
         throttle: 2000, // Throttle the progress event to 2000ms, defaults to 1000ms 
         delay: 1000 // Only start to emit after 1000ms delay, defaults to 0ms 
       })
       .on('progress', function(state) {
-        files.update({
-          filename: filename
-        }, {
+        const file = {
           filename: filename,
           url: downloadDir + filename,
           received: state.received,
@@ -41,7 +37,11 @@ class Downloader {
           total: state.total,
           percent: state.percent,
           done: false
-        }, {
+        };
+
+        files.update({
+          filename: filename
+        }, file, {
           upsert: true
         }, function(err, numReplaced, upsert) {
           if (err) {
@@ -71,23 +71,24 @@ class Downloader {
           if (err) {
             console.log("[Error on Close: Failed to find", filename, "]\n", err);
           }
-          var total = 10240,
-            percent = 100;
-          if (docs && docs.length > 0) {
-            total = docs[0].total;
-            percent = docs[0].percent;
-          }
-          console.log(percent);
-          files.update({
-            filename: filename
-          }, {
+
+          const file = {
             filename: filename,
             url: downloadDir + filename,
-            received: total,
-            total: total,
-            percent: percent,
+            received: 10240,
+            total: 10240,
+            percent: 100,
             done: true
-          }, {
+          };
+
+          if (docs && docs.length > 0) {
+            file.total = docs[0].total;
+            file.received = docs[0].total;
+          }
+
+          files.update({
+            filename: filename
+          }, file, {
             upsert: true
           }, function(err, numReplaced, upsert) {
             if (err) {
@@ -97,30 +98,44 @@ class Downloader {
           console.log("[Finished:", filename, "]");
         });
       })
-
-    return {
-      filename: filename,
-      url: downloadDir + filename,
-      received: 0,
-      total: 0,
-      percent: 0,
-      done: false
-    };
   }
 
-  get files() {
-    let _self = this;
+  updateDownloadList(onSuccess) {
     // Now we can query it the usual way
     files.find({}, function(err, docs) {
       if (err) {
         console.log("[Error retrieving file list]\n", err);
-      }
-      _self.fileList.splice(0, _self.fileList.length);
-      for (var value of docs) {
-        _self.fileList.push(value);
+      } else {
+        onSuccess(docs);
       }
     });
-    return this.fileList;
+  }
+
+  removeAllCompleted(onSuccess) {
+    files.remove({
+      done: true
+    }, {
+      // Remove multiple documents
+      multi: true
+    }, function(err, numRemoved) {
+      if (err) {
+        console.log("[Error removing completed downloads]\n", err);
+      } else {
+        onSuccess(numRemoved);
+      }
+    });
+  }
+
+  removeCompleted(downloadId, onSuccess) {
+    files.remove({
+      _id: downloadId
+    }, {}, function(err, numRemoved) {
+      if (err) {
+        console.log("[Error removing completed download with id", numRemoved, "]\n", err);
+      } else {
+        onSuccess(numRemoved);
+      }
+    });
   }
 }
 
