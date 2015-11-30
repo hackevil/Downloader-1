@@ -100,14 +100,16 @@ class Downloader {
       })
   }
 
-  updateDownloadList(onSuccess) {
-    // Now we can query it the usual way
-    files.find({}, function(err, docs) {
-      if (err) {
-        console.log("[Error retrieving file list]\n", err);
-      } else {
-        onSuccess(docs);
-      }
+  getDownloadList() {
+    return new Promise(function(resolve, reject) {
+      files.find({}, function(err, docs) {
+        if (err) {
+          reject(Error("[Error retrieving file list]\n", err));
+        } else {
+          // Resolve the promise with the response text
+          resolve(docs);
+        }
+      });
     });
   }
 

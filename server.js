@@ -30,9 +30,9 @@ app.post(endPoint, function(req, res) {
 });
 
 app.get(endPoint, function(req, res) {
-  downloader.updateDownloadList(function(docs) {
-    res.json(docs);
-  });
+  downloader.getDownloadList()
+    .then(files => res.json(files))
+    .catch(error => console.log(error));
 });
 
 app.delete(endPoint, function(req, res) {
