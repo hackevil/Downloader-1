@@ -1,14 +1,14 @@
-"use strict"
+'use strict'; // eslint-disable-line
 
-const fs = require('fs'),
-  request = require('request'),
-  progress = require('request-progress'),
-  downloadDir = "downloads/",
-  Nedb = require('nedb'),
-  files = new Nedb({
-    filename: 'db/data.db',
-    autoload: true
-  });
+const fs = require('fs');
+const request = require('request');
+const progress = require('request-progress');
+const downloadDir = 'downloads/';
+const Nedb = require('nedb');
+const files = new Nedb({
+  filename: 'db/data.db',
+  autoload: true,
+});
 
 if (!fs.existsSync(downloadDir)) {
   fs.mkdirSync(downloadDir);
@@ -21,55 +21,52 @@ class Downloader {
 
   download(url) {
     const filename = url.substring(url.lastIndexOf('/') + 1);
-    console.log("[Downloading", filename, "]");
-    const _self = this;
-    // Note that the options argument is optional 
+    console.log('[Downloading', filename, ']');
+    const self = this;
+    // Note that the options argument is optional
     progress(request(url), {
-        throttle: 2000, // Throttle the progress event to 2000ms, defaults to 1000ms 
-        delay: 1000 // Only start to emit after 1000ms delay, defaults to 0ms 
-      })
-      .on('progress', function(state) {
+        throttle: 2000, // Throttle the progress event to 2000ms, defaults to 1000ms
+        delay: 1000, // Only start to emit after 1000ms delay, defaults to 0ms
+      }).on('progress', function(state) {
         const file = {
           filename: filename,
           url: downloadDir + filename,
           received: state.received,
-          // The properties {precent, total} can be null if response does not contain the content-length header 
-          total: state.total,
+          total: state.total, // The properties {precent, total} can be null if response does not contain the content-length header
           percent: state.percent,
-          done: false
+          done: false,
         };
 
         files.update({
           filename: filename
         }, file, {
           upsert: true
-        }, function(err, numReplaced, upsert) {
+        }, (err, numReplaced, upsert) => {
           if (err) {
-            console.log("Failed upsert during progress:", err);
+            console.log('Failed upsert during progress:', err);
           }
         });
-      })
-      .on('error', function(err) {
-        console.log("[Error on download]\n", err);
-        if (_self.count < 3) {
-          console.log("Retrying");
-          _self.download(url);
-          _self.count++;
+      }).on('error', (err) => {
+        console.log('[Error on download]\n', err);
+        if (self.count < 3) {
+          console.log('Retrying');
+          self.download(url);
+          self.count++;
         } else {
-          console.log("[Failed to download after 3 attempts]");
+          console.log('[Failed to download after 3 attempts]');
         }
       })
       .pipe(fs.createWriteStream(downloadDir + filename))
-      .on('error', function(err) {
-        console.log("[Error on pipe]\n", err);
+      .on('error', (err) => {
+        console.log('[Error on pipe]\n', err);
       })
-      .on('close', function(err) {
+      .on('close', (err) => {
         files.find({
           filename: filename
-        }, function(err, docs) {
+        }, (err, docs) => {
           // A small file wont even see 'progress'
           if (err) {
-            console.log("[Error on Close: Failed to find", filename, "]\n", err);
+            console.log('[Error on Close: Failed to find', filename, ']\n', err);
           }
 
           const file = {
@@ -78,7 +75,7 @@ class Downloader {
             received: 10240,
             total: 10240,
             percent: 100,
-            done: true
+            done: true,
           };
 
           if (docs && docs.length > 0) {
@@ -90,21 +87,21 @@ class Downloader {
             filename: filename
           }, file, {
             upsert: true
-          }, function(err, numReplaced, upsert) {
+          }, (err, numReplaced, upsert) => {
             if (err) {
-              console.log("[Error: Failed upsert during close]\n", err);
+              console.log('[Error: Failed upsert during close]\n', err);
             }
           });
-          console.log("[Finished:", filename, "]");
+          console.log('[Finished:', filename, ']');
         });
       })
   }
 
   getDownloadList() {
-    return new Promise(function(resolve, reject) {
-      files.find({}, function(err, docs) {
+    return new Promise((resolve, reject) => {
+      files.find({}, (err, docs) => {
         if (err) {
-          reject(Error("[Error retrieving file list]\n", err));
+          reject(Error('[Error retrieving file list]\n', err));
         } else {
           // Resolve the promise with the response text
           resolve(docs);
@@ -115,13 +112,12 @@ class Downloader {
 
   removeAllCompleted(onSuccess) {
     files.remove({
-      done: true
+      done: true,
     }, {
-      // Remove multiple documents
-      multi: true
-    }, function(err, numRemoved) {
+      multi: true, // Remove multiple documents
+    }, (err, numRemoved) => {
       if (err) {
-        console.log("[Error removing completed downloads]\n", err);
+        console.log('[Error removing completed downloads]\n', err);
       } else {
         onSuccess(numRemoved);
       }
@@ -130,10 +126,10 @@ class Downloader {
 
   removeCompleted(downloadId, onSuccess) {
     files.remove({
-      _id: downloadId
-    }, {}, function(err, numRemoved) {
+      _id: downloadId,
+    }, {}, (err, numRemoved) => {
       if (err) {
-        console.log("[Error removing completed download with id", numRemoved, "]\n", err);
+        console.log('[Error removing completed download with id', numRemoved, ']\n', err);
       } else {
         onSuccess(numRemoved);
       }
