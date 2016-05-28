@@ -4,16 +4,18 @@
      / /_/ / /_/ / |/ |/ / / / / / /_/ / /_/ / /_/ /  __/ /
     /_____/\____/|__/|__/_/ /_/_/\____/\__,_/\__,_/\___/_/
 
-              
+
 
 ## Setup Node JS
-  - [Download tgz file](https://nodejs.org/dist/v4.2.2/node-v4.2.2-linux-x64.tar.gz)
-  - Extract `tar -zxvf node-v4.2.2-linux-x64.tar.gz`
-  - Move to `/opt/node`
+
+  - Download the latest version of [NodeJS](https://nodejs.org/dist/v6.2.0/node-v6.2.0-linux-x64.tar.xz)
+  - Extract `tar -zxvf node-${version}-linux-x64.tar.xz`
+  - Move the extracted folder to `/opt/node`
   - Add `/opt/node/bin/` to `/etc/environment`
   - `source /etc/environment` to apply the change
 
 ## Install Git
+
   - `sudo apt-get install git`
 
 ## Setup Downloader
@@ -21,5 +23,5 @@
     - Make sure that the user you use to run the app has write access to the folder (For now ;) )
   - `cd` to the location
   - run `npm install`
-  - run by executing `node server.js`
+  - run by executing `npm start`
   - Access on port :8080 `http://<server>:8080`
