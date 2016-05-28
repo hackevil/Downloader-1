@@ -8,6 +8,7 @@ module.exports = {
     app: './client/app.js',
     vendor: [
       'vue',
+      'axios',
     ],
   },
   output: {

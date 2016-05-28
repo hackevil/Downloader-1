@@ -1,7 +1,7 @@
 'use strict';
 
 const Vue = require('vue');
-const utils = require('../utils');
+const request = require('axios');
 const debug = (value) => console.log(value);
 
 module.exports = new Vue({
@@ -34,20 +34,24 @@ module.exports = new Vue({
   methods: {
     fetchData() {
       setInterval(() => {
-        utils.request('GET', '/api/v1/downloads', undefined, (req) => {
-          this.files = JSON.parse(req.responseText);
-        });
+        request
+          .get('/api/v1/downloads')
+          .then((res) => {
+            this.files = res.data;
+          });
       }, 1000);
     },
     deleteFile(event) {
       if (event.target.dataset.id) {
-        utils.request('DELETE', `/api/v1/downloads/${event.target.dataset.id}`,
-          undefined, () => debug('Remove specific.'));
+        request
+          .delete(`/api/v1/downloads/${event.target.dataset.id}`)
+          .then(() => debug('Remove specific.'));
       }
     },
     clear() {
-      utils.request('DELETE', '/api/v1/downloads', undefined, () =>
-        debug('Clear remove specific.'));
+      request
+        .delete('/api/v1/downloads')
+        .then(() => debug('Remove all.'));
     },
   },
 });

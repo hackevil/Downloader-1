@@ -2,7 +2,7 @@
 
 const Vue = require('vue');
 const downloads = require('./downloads');
-const utils = require('../utils');
+const request = require('axios');
 
 module.exports = new Vue({
   parent: downloads,
@@ -17,14 +17,13 @@ module.exports = new Vue({
     download() {
       const url = this.downloadUrl;
       if (url && url.length > 0) {
-        const trimmedUrl = url.trim();
-        utils.request('POST', '/api/v1/downloads', {
-          url: trimmedUrl,
-        }, (req) => {
-          if (req.status === 200) {
-            this.$dispatch('downloadUrl', req.responseText);
-          }
-        });
+        request
+          .post('/api/v1/downloads', {
+            data: {
+              url: url.trim(),
+            },
+          })
+          .then((res) => this.$dispatch('downloadUrl', res.data));
       }
     },
   },

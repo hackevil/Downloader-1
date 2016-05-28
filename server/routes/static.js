@@ -20,5 +20,6 @@ router.get('/', (req, res) => {
 });
 
 router.use('/public', express.static(`${directory}/dist`));
+router.use('/downloads', express.static(`${directory}/downloads`));
 
 module.exports = router;

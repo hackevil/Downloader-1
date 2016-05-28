@@ -6,7 +6,7 @@ const downloader = require('../downloader');
 const debug = (value) => console.log(value);
 
 router.post('/', (req, res) => {
-  const fileUrl = req.body.url;
+  const fileUrl = req.body.data.url;
   debug('Request to download:', fileUrl);
   if (fileUrl === undefined || fileUrl === '') {
     debug('Failed. No file specified');

@@ -13,10 +13,11 @@
   "author": "Leo Ackerman",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.11.1",
     "body-parser": "^1.14.1",
     "express": "^4.13.3",
     "nedb": "^1.4.0",
-    "request": "^2.65.0",
+    "request": "^2.72.0",
     "request-progress": "^0.3.1",
     "spectre.css": "^0.1.23",
     "vue": "^1.0.24"
@@ -29,5 +30,13 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:lackerman/downloader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lackerman/downloader/issues"
+  },
+  "homepage": "https://github.com/lackerman/downloader#readme"
 }
