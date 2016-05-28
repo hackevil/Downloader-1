@@ -2,9 +2,13 @@
   "name": "downloader",
   "version": "1.0.0",
   "description": "A simple HTTP file downloader with progress bar",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint *.js client/ server/",
+    "pretest": "npm run lint",
+    "prestart": "npm run lint && webpack",
+    "start": "env $(cat dev.env | xargs) node app.js"
   },
   "author": "Leo Ackerman",
   "license": "ISC",
@@ -13,11 +17,17 @@
     "express": "^4.13.3",
     "nedb": "^1.4.0",
     "request": "^2.65.0",
-    "request-progress": "^0.3.1"
+    "request-progress": "^0.3.1",
+    "spectre.css": "^0.1.23",
+    "vue": "^1.0.24"
   },
   "devDependencies": {
+    "css-loader": "^0.23.1",
     "eslint": "^2.10.2",
     "eslint-config-airbnb-base": "^3.0.1",
-    "eslint-plugin-import": "^1.8.0"
+    "eslint-plugin-import": "^1.2.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.13.1"
   }
 }

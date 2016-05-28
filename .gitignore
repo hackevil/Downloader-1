@@ -1,3 +1,5 @@
 node_modules
 downloads/
 db/
+npm-debug.log
+dist/
